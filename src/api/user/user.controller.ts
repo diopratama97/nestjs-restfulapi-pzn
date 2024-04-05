@@ -8,14 +8,14 @@ import {
   Post,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { WebResponse } from '../model/web.model';
+import { WebResponse } from '../../model/web.model';
 import {
   RegisterUserRequest,
   UpdateUserRequest,
   UserResponse,
-} from '../model/user.model';
+} from '../../model/user.model';
 import { User } from '@prisma/client';
-import { Auth } from '../common/auth.decorator';
+import { Auth } from '../../common/auth.decorator';
 
 @Controller('/api/users')
 export class UserController {
