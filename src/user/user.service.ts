@@ -4,6 +4,7 @@ import { ValidationService } from '../common/validation.service';
 import {
   LoginUserRequest,
   RegisterUserRequest,
+  UpdateUserRequest,
   UserResponse,
 } from '../model/user.model';
 import { Logger } from 'winston';
@@ -22,7 +23,7 @@ export class UserService {
   ) {}
 
   async register(req: RegisterUserRequest): Promise<UserResponse> {
-    this.logger.info(`Register new User ${JSON.stringify(req)}`);
+    this.logger.debug(`Register new User ${JSON.stringify(req)}`);
 
     const registerReq: RegisterUserRequest = this.validationService.validate(
       UserValidation.REGISTER,
@@ -56,7 +57,7 @@ export class UserService {
   }
 
   async login(req: LoginUserRequest): Promise<UserResponse> {
-    this.logger.info(`UserService.login (${JSON.stringify(req)})`);
+    this.logger.debug(`UserService.login (${JSON.stringify(req)})`);
 
     const loginReq: LoginUserRequest = this.validationService.validate(
       UserValidation.LOGIN,
@@ -100,6 +101,38 @@ export class UserService {
       username: user.username,
       name: user.name,
       id: user.id,
+    };
+  }
+
+  async update(user: User, req: UpdateUserRequest): Promise<UserResponse> {
+    this.logger.debug(
+      `UserService.update (${JSON.stringify(user)}), ${JSON.stringify(req)}`,
+    );
+
+    const updateReq: UpdateUserRequest = this.validationService.validate(
+      UserValidation.UPDATE,
+      req,
+    );
+
+    if (updateReq.name) {
+      user.name = updateReq.name;
+    }
+
+    if (updateReq.password) {
+      user.password = await hash(updateReq.password, 10);
+    }
+
+    const result = await this.prismaService.user.update({
+      where: {
+        username: user.username,
+      },
+      data: user,
+    });
+
+    return {
+      name: result.name,
+      username: result.username,
+      id: result.id,
     };
   }
 }
