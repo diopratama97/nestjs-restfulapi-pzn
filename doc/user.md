@@ -2,7 +2,7 @@
 
 ## Register User
 
-Endpoint : POST /api/users
+Endpoint : POST /api/users/register
 
 Request Body :
 
@@ -35,7 +35,7 @@ Response Body Error :
 
 ## Login User
 
-Endpoint : POST /api/login
+Endpoint : POST /api/users/login
 
 Request Body :
 
@@ -68,7 +68,7 @@ Response Body Error :
 
 ## Get User
 
-Endpoint : GET /api/users
+Endpoint : GET /api/users/current
 
 Headers :
 Authorization : token
