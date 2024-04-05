@@ -11,6 +11,7 @@ import { UserValidation } from './user.validation';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../common/prisma.service';
 import { hash, compare } from 'bcryptjs';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -91,6 +92,14 @@ export class UserService {
       username: user.username,
       name: user.name,
       token: user.token,
+    };
+  }
+
+  async get(user: User): Promise<UserResponse> {
+    return {
+      username: user.username,
+      name: user.name,
+      id: user.id,
     };
   }
 }

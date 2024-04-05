@@ -22,6 +22,7 @@ export class TestService {
         username: 'test',
         name: 'test',
         password: await hash('test', 10),
+        token: 'test',
       },
     });
   }
