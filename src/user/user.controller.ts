@@ -7,12 +7,23 @@ import { RegisterUserRequest, UserResponse } from '../model/user.model';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Post()
+  @Post('/register')
   @HttpCode(200)
   async register(
     @Body() req: RegisterUserRequest,
   ): Promise<WebResponse<UserResponse>> {
     const result = await this.userService.register(req);
+    return {
+      data: result,
+    };
+  }
+
+  @Post('/login')
+  @HttpCode(200)
+  async login(
+    @Body() req: RegisterUserRequest,
+  ): Promise<WebResponse<UserResponse>> {
+    const result = await this.userService.login(req);
     return {
       data: result,
     };

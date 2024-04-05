@@ -1,12 +1,16 @@
 import { HttpException, Inject, Injectable } from '@nestjs/common';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { ValidationService } from '../common/validation.service';
-import { RegisterUserRequest, UserResponse } from '../model/user.model';
+import {
+  LoginUserRequest,
+  RegisterUserRequest,
+  UserResponse,
+} from '../model/user.model';
 import { Logger } from 'winston';
 import { UserValidation } from './user.validation';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../common/prisma.service';
-import { hash } from 'bcryptjs';
+import { hash, compare } from 'bcryptjs';
 
 @Injectable()
 export class UserService {
@@ -47,6 +51,46 @@ export class UserService {
       id: user.id,
       username: user.username,
       name: user.name,
+    };
+  }
+
+  async login(req: LoginUserRequest): Promise<UserResponse> {
+    this.logger.info(`UserService.login (${JSON.stringify(req)})`);
+
+    const loginReq: LoginUserRequest = this.validationService.validate(
+      UserValidation.LOGIN,
+      req,
+    );
+
+    let user = await this.prismaService.user.findFirst({
+      where: {
+        username: loginReq.username,
+      },
+    });
+
+    if (!user) {
+      throw new HttpException('Username or password is invalid', 401);
+    }
+
+    const isPasswordValid = await compare(loginReq.password, user.password);
+
+    if (!isPasswordValid) {
+      throw new HttpException('Username or password is invalid', 401);
+    }
+
+    user = await this.prismaService.user.update({
+      where: {
+        username: user.username,
+      },
+      data: {
+        token: uuidv4(),
+      },
+    });
+
+    return {
+      username: user.username,
+      name: user.name,
+      token: user.token,
     };
   }
 }

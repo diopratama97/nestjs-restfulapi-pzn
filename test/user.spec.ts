@@ -24,14 +24,14 @@ describe('UserController', () => {
     testService = app.get(TestService);
   });
 
-  describe('POST /api/users', () => {
+  describe('POST /api/users/register', () => {
     beforeEach(async () => {
       testService.deleteUser();
     });
 
     it('should be rejected if request is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/users')
+        .post('/api/users/register')
         .send({
           username: '',
           password: '',
@@ -46,7 +46,7 @@ describe('UserController', () => {
 
     it('should be able to register', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/users')
+        .post('/api/users/register')
         .send({
           username: 'test',
           password: 'test',
@@ -63,7 +63,7 @@ describe('UserController', () => {
     it('should be able to rejected if username already exist', async () => {
       await testService.createUser();
       const response = await request(app.getHttpServer())
-        .post('/api/users')
+        .post('/api/users/register')
         .send({
           username: 'test',
           password: 'test',
@@ -74,6 +74,43 @@ describe('UserController', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
+    });
+  });
+
+  describe('POST /api/users/login', () => {
+    beforeEach(async () => {
+      testService.deleteUser();
+      testService.createUser();
+    });
+
+    it('should be rejected if request is invalid', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/users/login')
+        .send({
+          username: '',
+          password: '',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('should be able to login', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/api/users/login')
+        .send({
+          username: 'test',
+          password: 'test',
+        });
+
+      logger.info(response.body);
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.username).toBe('test');
+      expect(response.body.data.name).toBe('test');
+      expect(response.body.data.token).toBeDefined();
     });
   });
 });
